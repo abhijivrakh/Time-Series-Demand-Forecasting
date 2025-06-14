@@ -6,13 +6,6 @@ A complete end-to-end machine learning project that forecasts demand based on ti
 
 ---
 
-## 📸 Screenshot
-
-![App Screenshot](./assets/screenshot.png)
-
-> *Make sure you add a screenshot named `screenshot.png` inside an `assets/` folder in your repo.*
-
----
 
 ## 🔧 Project Structure
 
