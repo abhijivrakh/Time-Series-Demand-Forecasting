@@ -12,7 +12,7 @@ from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 try:
     from xgboost import XGBRegressor
 except ImportError:
-    print("❌ XGBoost is not installed. Please install it using one of the following commands:")
+    print(" XGBoost is not installed. Please install it using one of the following commands:")
     print("\n▶ Conda (recommended): conda install -c conda-forge xgboost")
     print("▶ Pip: pip install xgboost")
     sys.exit(1)
@@ -52,13 +52,13 @@ def train_model(df):
     mae = mean_absolute_error(y, preds)
     r2 = r2_score(y, preds)
 
-    print(f"✅ Model Trained:\n→ RMSE: {rmse:.2f}, MAE: {mae:.2f}, R2: {r2:.2f}")
+    print(f" Model Trained:\n→ RMSE: {rmse:.2f}, MAE: {mae:.2f}, R2: {r2:.2f}")
     return best_model
 
 def save_model(model, filepath="xgb_model.pkl"):
     """Save trained model using joblib"""
     joblib.dump(model, filepath)
-    print(f"✅ Model saved to {filepath}")
+    print(f" Model saved to {filepath}")
 
 # Run training
 if __name__ == "__main__":
