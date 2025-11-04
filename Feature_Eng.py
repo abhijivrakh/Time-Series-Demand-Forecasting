@@ -52,4 +52,4 @@ if __name__ == "__main__":
     df = create_features(df)
     save_data(df, output_path)
 
-    print("✅ Feature engineering complete. Saved as 'featured_dataset.csv'")
+    print(" Feature engineering complete. Saved as 'featured_dataset.csv'")
