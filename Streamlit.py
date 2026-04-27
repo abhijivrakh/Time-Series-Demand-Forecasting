@@ -45,43 +45,103 @@ model = joblib.load("models/xgb_model.pkl")
 st.markdown("""
 <div class="header-box">
     <h1>📈 Time Series Sales Forecasting Dashboard</h1>
-    <h4>Built by: Abhishek Jivrakh</h4>
+    <h4>Developed by: Abhishek Jivrakh</h4>
     <p>
-    An end-to-end Machine Learning dashboard that predicts future sales using historical business data,
-    engineered features, and an XGBoost regression model.
+    A production-ready Machine Learning system designed to forecast future sales trends 
+    using historical data, feature engineering, and advanced regression modeling.
     </p>
 </div>
 """, unsafe_allow_html=True)
 
-# ---------------- ABOUT PROJECT ----------------
-with st.expander("📌 About This Project", expanded=True):
+# ---------------- BUSINESS PROBLEM ----------------
+with st.expander("🏢 Business Problem & Impact", expanded=True):
     st.write("""
-    This project is designed to forecast sales using time-series-based features such as lag values,
-    rolling averages, date-based patterns, and business-level indicators.
+    This project addresses a critical business challenge — **accurate sales forecasting**.
 
-    The goal is to help businesses understand expected sales trends, compare actual vs predicted values,
-    and support data-driven planning.
+    Businesses often face:
+    - Overstocking / Understocking
+    - Demand uncertainty
+    - Revenue fluctuations
+    - Inefficient supply chain decisions
+
+    🎯 **Solution:**
+    This ML system predicts future sales trends and helps businesses:
+    - Optimize inventory
+    - Improve demand planning
+    - Make proactive decisions
+    - Increase operational efficiency
+
+    📌 **Impact:**
+    - Reduced inventory costs
+    - Improved revenue predictability
+    - Data-driven decision making
     """)
 
-with st.expander("🤖 Model Used and Why"):
+# ---------------- DATASET ----------------
+with st.expander("📊 Dataset Understanding (Important)", expanded=False):
+    st.write("""
+    The model is trained on a **time-series structured dataset**.
+
+    📌 **Required Columns:**
+    - `date` → Time dimension
+    - `sales` → Actual sales (target variable)
+    - `product_category` → Product segmentation
+
+    📌 **Engineered Features:**
+    - Lag features (previous sales)
+    - Rolling averages
+    - Calendar features (day, month, seasonality)
+
+    ⚠️ The model expects the same feature structure during prediction.
+    """)
+
+# ---------------- MODEL INFO ----------------
+with st.expander("🤖 Model Used & Justification"):
     st.write("""
     **Model Used:** XGBoost Regressor
 
-    **Why XGBoost?**
-    - Handles tabular and engineered time-series features very well
-    - Captures non-linear relationships better than simple linear models
-    - Performs strongly on structured business datasets
-    - Supports feature importance and production deployment
-    - Faster and easier to deploy compared to deep learning models for this use case
+    ✔ Handles structured/tabular data efficiently  
+    ✔ Captures non-linear patterns  
+    ✔ Works well with engineered time-series features  
+    ✔ Production-friendly and fast  
 
-    In this project, time-series behavior is captured through feature engineering, and XGBoost learns patterns from those features.
+    This model learns patterns from historical data and predicts future sales behavior.
+    """)
+
+# ---------------- USE CASES ----------------
+with st.expander("🌍 Real-World Applications"):
+    st.write("""
+    🛒 Retail & E-commerce → Demand forecasting  
+    🚚 Supply Chain → Inventory optimization  
+    📦 FMCG → Seasonal planning  
+    📊 Business Strategy → Revenue forecasting  
+    📈 Marketing → Campaign planning  
+    """)
+
+# ---------------- MLOPS ----------------
+with st.expander("⚙️ Production & MLOps"):
+    st.write("""
+    This system is designed with production in mind.
+
+    🔧 Technologies:
+    - XGBoost
+    - Streamlit
+    - Joblib
+
+    🚀 MLOps:
+    - Model versioning
+    - Pipeline-based preprocessing
+    - Docker-ready architecture
+    - CI/CD ready deployment
+
+    📌 Ensures scalability, reliability, and real-world usability.
     """)
 
 # ---------------- FILE UPLOAD ----------------
-st.subheader("📤 Upload Featured Dataset")
+st.subheader("📤 Upload Dataset")
 
 uploaded_file = st.file_uploader(
-    "Upload your featured_dataset.csv file",
+    "Upload featured_dataset.csv",
     type=["csv"]
 )
 
@@ -90,23 +150,18 @@ if uploaded_file:
 
     st.success("Dataset uploaded successfully.")
 
-    # ---------------- RAW DATA ----------------
+    # ---------------- PREVIEW ----------------
     st.subheader("📊 Dataset Preview")
     st.dataframe(df.head(), use_container_width=True)
 
-    # ---------------- BASIC DATA INFO ----------------
+    # ---------------- BASIC INFO ----------------
     col1, col2, col3 = st.columns(3)
 
-    with col1:
-        st.metric("Total Records", df.shape[0])
+    col1.metric("Rows", df.shape[0])
+    col2.metric("Columns", df.shape[1])
+    col3.metric("Date Range", f"{df['date'].min().date()} → {df['date'].max().date()}")
 
-    with col2:
-        st.metric("Total Features", df.shape[1])
-
-    with col3:
-        st.metric("Date Range", f"{df['date'].min().date()} → {df['date'].max().date()}")
-
-    # ---------------- FEATURE PREPARATION ----------------
+    # ---------------- FEATURES ----------------
     X = df.drop(columns=["date", "sales", "product_category"], errors="ignore")
 
     # ---------------- PREDICTION ----------------
@@ -119,70 +174,49 @@ if uploaded_file:
         rmse = np.sqrt(mean_squared_error(df["sales"], df["Predicted Sales"]))
         r2 = r2_score(df["sales"], df["Predicted Sales"])
 
-        st.subheader("📌 Model Performance on Uploaded Data")
+        st.subheader("📌 Model Performance")
 
         m1, m2, m3 = st.columns(3)
+        m1.metric("MAE", round(mae, 2))
+        m2.metric("RMSE", round(rmse, 2))
+        m3.metric("R² Score", round(r2, 3))
 
-        with m1:
-            st.metric("MAE", round(mae, 2))
-
-        with m2:
-            st.metric("RMSE", round(rmse, 2))
-
-        with m3:
-            st.metric("R² Score", round(r2, 3))
-
-    # ---------------- FORECAST VISUALIZATION ----------------
+    # ---------------- GRAPH ----------------
     st.subheader("📉 Actual vs Predicted Sales")
 
     fig, ax = plt.subplots(figsize=(12, 5))
-    ax.plot(df["date"], df["sales"], label="Actual Sales", linewidth=2)
-    ax.plot(df["date"], df["Predicted Sales"], label="Predicted Sales", linewidth=2)
-    ax.set_xlabel("Date")
-    ax.set_ylabel("Sales")
-    ax.set_title("Actual Sales vs Predicted Sales")
+    ax.plot(df["date"], df["sales"], label="Actual", linewidth=2)
+    ax.plot(df["date"], df["Predicted Sales"], label="Predicted", linewidth=2)
     ax.legend()
-    ax.grid(True, alpha=0.3)
+    ax.grid(alpha=0.3)
 
     st.pyplot(fig)
 
-    # ---------------- BUSINESS INSIGHTS ----------------
-    st.subheader("💡 Business Insights")
+    # ---------------- INSIGHTS ----------------
+    st.subheader("💡 Business Insight")
 
     avg_actual = df["sales"].mean()
-    avg_predicted = df["Predicted Sales"].mean()
+    avg_pred = df["Predicted Sales"].mean()
 
-    if avg_predicted > avg_actual:
-        insight = "The model predicts an upward sales trend. This may indicate strong future demand or positive business momentum."
-    elif avg_predicted < avg_actual:
-        insight = "The model predicts a possible sales decline. The business should monitor demand, inventory, and marketing activity."
+    if avg_pred > avg_actual:
+        st.info("Predicted trend shows growth. Business can scale operations.")
     else:
-        insight = "The predicted sales are close to actual averages, showing stable business behavior."
-
-    st.info(insight)
-
-    # ---------------- OUTPUT TABLE ----------------
-    st.subheader("📋 Prediction Output")
-    st.dataframe(df, use_container_width=True)
+        st.info("Predicted trend shows possible decline. Review strategy.")
 
     # ---------------- DOWNLOAD ----------------
-    st.subheader("📥 Download Prediction Results")
-
-    csv_output = df.to_csv(index=False).encode("utf-8")
+    st.subheader("📥 Download Results")
 
     st.download_button(
-        label="Download Predictions CSV",
-        data=csv_output,
-        file_name="sales_forecast_predictions.csv",
-        mime="text/csv",
-        use_container_width=True
+        "Download Predictions",
+        df.to_csv(index=False),
+        "predictions.csv"
     )
 
 else:
-    st.warning("Please upload a CSV file to generate sales forecasts.")
+    st.warning("Upload dataset to start forecasting.")
 
 # ---------------- FOOTER ----------------
 st.markdown("---")
 st.caption(
-    "Project: Time Series Sales Forecasting | Model: XGBoost Regressor | Developed by Abhishek Jivrakh"
+    "🚀 Production-Ready ML System | XGBoost | Time Series Forecasting | Docker + CI/CD Ready | Abhishek Jivrakh"
 )
